@@ -1,6 +1,16 @@
 package main
 
+import (
+	"github.com/gabekuslansky/kana/cli"
+	"log"
+	"os"
+)
+
+var version = "dev"
+
 func main() {
-	println("Hello world!")
-	test();
+	app := cli.App(version)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
