@@ -1,5 +1,4 @@
 # FSRS 4.5
-
 ## Params
 
 - DECAY = -1
@@ -14,10 +13,10 @@
 # Up next
 
 [] Add cli interactive to 'add'
-[]
-[]
-[]
-[]
+[] Create decks
+[] List decks
+[] List cards from deck
+[] Add DB: https://github.com/dgraph-io/badger (?)
 []
 
 # Math Notes

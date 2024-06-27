@@ -7,11 +7,12 @@ import (
 
 func App(version string) cli.App {
 	return cli.App{
-		Name:    "kana",
+		Name:    "🗡  kana",
 		Version: version,
 		Usage:   "Terminal based flashcard system",
 		Commands: []*cli.Command{
-			cmds.Add(),
+			cmds.Deck(),
+			cmds.Card(),
 		},
 	}
 }
