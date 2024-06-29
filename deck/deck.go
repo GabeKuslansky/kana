@@ -8,8 +8,27 @@ import (
 	"github.com/gabekus/kana/db"
 )
 
+const (
+	NEW_DECK = "new"
+)
+
 func AddFromInteractivePrompt() error {
-	println("adding deck")
+	var name string
+	huh.NewInput().
+		Title("What's the deck name?").
+		Value(&name).
+		Run()
+
+	id, err := anki.CreateDeck(name)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.UpdateDefaultDeck(id)
+	if err != nil {
+		panic(err)
+	}
+
 	return nil
 }
 
@@ -23,7 +42,7 @@ func Pick() error {
 	if err != nil {
 		panic(err)
 	}
-	opts := []huh.Option[string]{}
+	opts := []huh.Option[string]{{Key: "(New)", Value: NEW_DECK}}
 	for name, id := range deckNames {
 		opts = append(opts, huh.Option[string]{Key: name, Value: strconv.Itoa(id)})
 	}
@@ -40,12 +59,16 @@ func Pick() error {
 		return nil
 	}
 
-	num, err := strconv.Atoi(chosenDeckId)
+	if chosenDeckId == NEW_DECK {
+		return AddFromInteractivePrompt()
+	}
+
+	id, err := strconv.Atoi(chosenDeckId)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := db.UpdateDefaultDeck(num); err != nil {
+	if err := db.UpdateDefaultDeck(id); err != nil {
 		panic(err)
 	}
 

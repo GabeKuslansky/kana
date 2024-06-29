@@ -2,57 +2,115 @@ package anki
 
 import (
 	"bytes"
-	"net/http"
-
-	// "encoding/json"
 	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 const (
-	URL                = "http://localhost:8765"
-	VERSION            = 6
-	DECK_NAMES_REQUEST = `{
-    "action": "deckNames",
-    "version": 6
-    }`
+	URL     = "http://localhost:8765"
+	VERSION = 6
 )
 
-func formatRequest(action string) string {
-	return fmt.Sprintf(`{
-	"action": "%s",
-	"version": %d
-	}`, action, VERSION)
+type AnkiConnectRequest struct {
+	Action  string `json:"action"`
+	Version int    `json:"version"`
+}
+
+type AnkiConnectRequestWithParams struct {
+	Action  string                 `json:"action"`
+	Version int                    `json:"version"`
+	Params  map[string]interface{} `json:"params"`
 }
 
 type DeckNamesResponse struct {
 	Result map[string]int `json:"result"`
-	Error  interface{}       `json:"error"`
+	Error  interface{}    `json:"error"`
 }
 
-func Request(action string) ([]byte, error) {
-	body := bytes.NewBuffer([]byte(formatRequest(action)))
-	resp, err := http.Post(URL, "application/json", body)
+type CreateDeckParams struct {
+	Deck string `json:"deck"`
+}
+
+type CreateDeckResult struct {
+	Id int `json:"result"`
+}
+
+func getJsonBytes(action string, params interface{}) ([]byte, error) {
+	var req interface{}
+
+	if params != nil {
+		req = AnkiConnectRequestWithParams{
+			Action:  action,
+			Version: VERSION,
+			Params:  params.(map[string]interface{}),
+		}
+	} else {
+		req = AnkiConnectRequest{
+			Action:  action,
+			Version: VERSION,
+		}
+	}
+
+	jsonData, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling request: %v", err)
+	}
+
+	return jsonData, nil
+}
+
+func Request(jsonBytes []byte) ([]byte, error) {
+	resp, err := http.Post(URL, "application/json", bytes.NewBuffer(jsonBytes)) // Every request to Anki-Connect is a POST
 	if err != nil {
 		return nil, fmt.Errorf("error sending request: %v", err)
 	}
-
 	defer resp.Body.Close()
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	return buf.Bytes(), nil
+	respBuf := new(bytes.Buffer)
+	respBuf.ReadFrom(resp.Body)
 
+	return respBuf.Bytes(), nil
 }
 
 func GetDeckNamesAndIds() (map[string]int, error) {
-	bytes, err := Request("deckNamesAndIds")
+	jsonBytes, err := getJsonBytes("deckNamesAndIds", nil)
+	if err != nil {
+		return nil, err
+	}
+	respBytes, err := Request(jsonBytes)
 	if err != nil {
 		return nil, err
 	}
 
 	var response DeckNamesResponse
-	json.Unmarshal(bytes, &response)
+	err = json.Unmarshal(respBytes, &response)
+	if err != nil {
+		return nil, err
+	}
 
 	return response.Result, nil
+}
+
+func CreateDeck(name string) (int, error) {
+	params := map[string]interface{}{
+		"deck": name,
+	}
+	jsonBytes, err := getJsonBytes("createDeck", params)
+	if err != nil {
+		return 0, err
+	}
+
+	resBytes, err := Request(jsonBytes)
+	if err != nil {
+		return 0, err
+	}
+
+	var response CreateDeckResult
+	err = json.Unmarshal(resBytes, &response)
+	if err != nil {
+		return 0, err
+	}
+
+	return response.Id, nil
 }

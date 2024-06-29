@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/gabekus/kana/cmds"
 	"github.com/gabekus/kana/db"
 	"github.com/urfave/cli/v2"
