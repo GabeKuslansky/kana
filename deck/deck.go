@@ -9,7 +9,9 @@ import (
 )
 
 const (
-	NEW_DECK = "new"
+	NEW_DECK          = "new"
+	DEFAULT_DECK_NAME = "Default"
+	DEFAULT_DECK_ID   = 1
 )
 
 func AddFromInteractivePrompt() error {
@@ -42,8 +44,21 @@ func Pick() error {
 	if err != nil {
 		panic(err)
 	}
+
 	opts := []huh.Option[string]{{Key: "(New)", Value: NEW_DECK}}
 	for name, id := range deckNames {
+		if id == DEFAULT_DECK_ID {
+			names := [1]string{DEFAULT_DECK_NAME}
+			stats, err := anki.GetDeckStats(names[:])
+			if err != nil {
+				panic(err)
+			}
+
+			defaultDeckIsEmpty := stats[strconv.Itoa(DEFAULT_DECK_ID)].Total_In_Deck == 0
+			if defaultDeckIsEmpty {
+				break
+			}
+		}
 		opts = append(opts, huh.Option[string]{Key: name, Value: strconv.Itoa(id)})
 	}
 

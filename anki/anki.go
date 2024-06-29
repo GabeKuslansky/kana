@@ -23,7 +23,7 @@ type AnkiConnectRequestWithParams struct {
 	Params  map[string]interface{} `json:"params"`
 }
 
-type DeckNamesResponse struct {
+type DeckNamesAndIdsResponse struct {
 	Result map[string]int `json:"result"`
 	Error  interface{}    `json:"error"`
 }
@@ -32,8 +32,22 @@ type CreateDeckParams struct {
 	Deck string `json:"deck"`
 }
 
-type CreateDeckResult struct {
+type CreateDeckResponse struct {
 	Id int `json:"result"`
+}
+
+type DeckStatsResponse struct {
+	Result map[string]DeckStatsResult
+	Error  interface{}
+}
+
+type DeckStatsResult struct {
+	Deck_Id       uint `json:"deck_id"`
+	Name          string `json:"name"`
+	New_Count     uint   `json:"new_count"`
+	Learn_Count   uint   `json:"learn_count"`
+	Review_Count  uint   `json:"review_count"`
+	Total_In_Deck uint   `json:"total_in_deck"`
 }
 
 func getJsonBytes(action string, params interface{}) ([]byte, error) {
@@ -83,8 +97,33 @@ func GetDeckNamesAndIds() (map[string]int, error) {
 		return nil, err
 	}
 
-	var response DeckNamesResponse
+	var response DeckNamesAndIdsResponse
 	err = json.Unmarshal(respBytes, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Result, nil
+}
+
+func GetDeckStats(names []string) (map[string]DeckStatsResult, error) {
+	params := map[string]interface{}{
+		"decks": names,
+	}
+
+	jsonBytes, err := getJsonBytes("getDeckStats", params)
+	if err != nil {
+		return nil, err
+	}
+
+	respBytes, err := Request(jsonBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	var response DeckStatsResponse
+	err = json.Unmarshal(respBytes, &response)
+
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +145,7 @@ func CreateDeck(name string) (int, error) {
 		return 0, err
 	}
 
-	var response CreateDeckResult
+	var response CreateDeckResponse
 	err = json.Unmarshal(resBytes, &response)
 	if err != nil {
 		return 0, err
