@@ -1,4 +1,4 @@
-module github.com/gabekuslansky/kana
+module github.com/gabekus/kana
 
 go 1.22.4
 

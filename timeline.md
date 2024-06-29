@@ -13,3 +13,14 @@
 11. Maybe there's an easier and quicker solution. Google if there's a way to query Anki, found anki-connect: exposes an http server to query Anki decks
 12. Try it out. Holy shit, it works like magic. This also allows me to use Anki for cross-device syncing, another concern I can outsource, as Anki is available on every platform
 13. Get interactive prompts working, need to figure out a storage solution for data like default deck to study from
+14. Study how zoxide's Rust implementation stores data locally in their `db.zo`. They create `db.zo` lazily when updating the file, and write to it by serializing a Rust object into binary with the `bincode` crate, which also effeciently handles deserialization. This tells me I can most likely find a similar binary encoding and decoding lib in go to also efficiently handle serialization.
+15. I found three main options: Protobufs (`github.com/golang/protobuf/proto`), `encoding/gob` and `encoding/binary`. Ultimately I went with `encoding/gob` because the binary will only be written to and read from Go, so we can use the Go-specific encoding format from the standard lib. Protobufs are useful for language-agnostic serialization and gRPC, both of which are unneccessary as `kana` is a monolithic Go executable that reads and manages a local file. `encoding/binary` lets you have fine grained control over how the binary is encoded, such as endianness. This is useful for serializing binary that needs to conform to another systems requirements, but not needed here.
+16. As for where to store the file, [zoxide](https://github.com/ajeetdsouza/zoxide) by default uses these values, so I'll use the same. I'll just implement Mac for now, since I'm developing on one.
+| OS          | Path                                     | Example                                    |
+    | ----------- | ---------------------------------------- | ------------------------------------------ |
+    | Linux / BSD | `$XDG_DATA_HOME` or `$HOME/.local/share` | `/home/alice/.local/share`                 |
+    | macOS       | `$HOME/Library/Application Support`      | `/Users/Alice/Library/Application Support` |
+    | Windows     | `%LOCALAPPDATA%`                         | `C:\Users\Alice\AppData\Local`             |
+
+They lazily create this directory if it doesn't exist when reading from the db  
+17.

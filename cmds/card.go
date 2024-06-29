@@ -1,9 +1,10 @@
 package cmds
 
 import (
-	"github.com/gabekuslansky/kana/card"
-	cli "github.com/urfave/cli/v2"
 	"log"
+
+	"github.com/gabekus/kana/card"
+	cli "github.com/urfave/cli/v2"
 )
 
 func Card() *cli.Command {

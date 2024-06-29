@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"github.com/gabekuslansky/kana/deck"
+	"github.com/gabekus/kana/deck"
 	cli "github.com/urfave/cli/v2"
 	// "log"
 )

@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/huh"
-	"github.com/gabekuslansky/kana/anki"
+	"github.com/gabekus/kana/anki"
 )
 
 func AddFromInteractivePrompt() error {

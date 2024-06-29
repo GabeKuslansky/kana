@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/gabekuslansky/kana/cmds"
+	"github.com/gabekus/kana/cmds"
 	"github.com/urfave/cli/v2"
 )
 

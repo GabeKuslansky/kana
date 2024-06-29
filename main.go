@@ -2,9 +2,10 @@ package main
 
 import (
 	// "github.com/charmbracelet/bubbletea"
-	"github.com/gabekuslansky/kana/cli"
 	"log"
 	"os"
+
+	"github.com/gabekus/kana/cli"
 )
 
 var version = "dev"
