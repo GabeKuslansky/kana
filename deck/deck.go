@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/gabekus/kana/anki"
+	"github.com/gabekus/kana/db"
 )
 
 func AddFromInteractivePrompt() error {
@@ -17,14 +18,13 @@ func AddFromFlags(name string) error {
 	return nil
 }
 
-func List() error {
+func Pick() error {
 	deckNames, err := anki.GetDeckNamesAndIds()
 	if err != nil {
-		println(err)
+		panic(err)
 	}
 	opts := []huh.Option[string]{}
 	for name, id := range deckNames {
-		println(name, id)
 		opts = append(opts, huh.Option[string]{Key: name, Value: strconv.Itoa(id)})
 	}
 
@@ -32,14 +32,21 @@ func List() error {
 	form := huh.NewForm(
 		huh.NewGroup(
 			huh.NewSelect[string]().
-				Title("Choose deck").
+				Title("Pick deck").
 				Options(opts...).Value(&chosenDeckId),
 		),
 	)
-	err = form.Run()
-	println(chosenDeckId)
+	if err = form.Run(); err != nil {
+		return nil
+	}
+
+	num, err := strconv.Atoi(chosenDeckId)
 	if err != nil {
-		return err
+		panic(err)
+	}
+
+	if err := db.UpdateDefaultDeck(num); err != nil {
+		panic(err)
 	}
 
 	return nil

@@ -12,7 +12,7 @@ func Deck() *cli.Command {
 		Aliases: []string{"d"},
 		Usage:   "Manage decks",
 		Action: func(c *cli.Context) error {
-			return deck.List()
+			return PickDeck()
 		},
 		// Subcommands: []*cli.Command{
 		// 	{
@@ -40,4 +40,8 @@ func Deck() *cli.Command {
 		// 	},
 		// },
 	}
+}
+
+func PickDeck() error {
+	return deck.Pick()
 }

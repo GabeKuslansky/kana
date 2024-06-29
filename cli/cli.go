@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/gabekus/kana/cmds"
+	"github.com/gabekus/kana/db"
 	"github.com/urfave/cli/v2"
 )
 
@@ -13,6 +16,16 @@ func App(version string) cli.App {
 		Commands: []*cli.Command{
 			cmds.Deck(),
 			cmds.Card(),
+			cmds.Purge(),
+		},
+		Action: func(c *cli.Context) error {
+			_db := db.Open()
+			if _db.DefaultDeckId != -1 {
+				// Reveal option to study, add, and manage cards
+			} else {
+				cmds.PickDeck()
+			}
+			return nil
 		},
 	}
 }

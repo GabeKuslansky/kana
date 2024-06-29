@@ -1,4 +1,10 @@
 # binary
 kana
+main
 
+# misc
 .DS_Store
+build-errors.log
+
+# dev
+launch.json
