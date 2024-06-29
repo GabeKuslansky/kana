@@ -12,4 +12,4 @@
 10. Started trying to implement FSRS in Go. Tons of reading and pre-requisite knowledge required, feeling exhausted... taking a break
 11. Maybe there's an easier and quicker solution. Google if there's a way to query Anki, found anki-connect: exposes an http server to query Anki decks
 12. Try it out. Holy shit, it works like magic. This also allows me to use Anki for cross-device syncing, another concern I can outsource, as Anki is available on every platform
-
+13. Get interactive prompts working, need to figure out a storage solution for data like default deck to study from
