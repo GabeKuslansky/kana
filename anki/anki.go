@@ -42,7 +42,7 @@ type DeckStatsResponse struct {
 }
 
 type DeckStatsResult struct {
-	Deck_Id       uint `json:"deck_id"`
+	Deck_Id       uint   `json:"deck_id"`
 	Name          string `json:"name"`
 	New_Count     uint   `json:"new_count"`
 	Learn_Count   uint   `json:"learn_count"`
