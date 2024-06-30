@@ -17,12 +17,14 @@ var db *Database
 
 type Database struct {
 	DefaultDeckId int
+	DefaultDeckName string
 }
 
-func UpdateDefaultDeck(id int) error {
+func UpdateDefaultDeck(id int, name string) error {
 	db := Open()
 
 	db.DefaultDeckId = id
+	db.DefaultDeckName = name
 
 	err := Save(db)
 	if err != nil {

@@ -3,6 +3,7 @@ package anki
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -152,4 +153,44 @@ func CreateDeck(name string) (int, error) {
 	}
 
 	return response.Id, nil
+}
+
+type AddCardResponse struct {
+	Id  int
+	Err string
+}
+
+func AddCard(front string, back string, deck string) (int, error) {
+	params := map[string]interface{}{
+		"note": map[string]interface{}{
+			"deckName":  deck,
+			"modelName": "Basic",
+			"fields": map[string]interface{}{
+				"Front": front,
+				"Back":  back,
+			},
+		},
+	}
+	jsonBytes, err := getJsonBytes("addNote", params)
+	if err != nil {
+		return 0, err
+	}
+
+	resBytes, err := Request(jsonBytes)
+	if err != nil {
+		return 0, err
+	}
+
+	var response AddCardResponse
+	err = json.Unmarshal(resBytes, &response)
+	if err != nil {
+		return 0, err
+	}
+
+	if response.Err != "" {
+		return 0, errors.New(response.Err)
+	}
+
+	return response.Id, nil
+
 }

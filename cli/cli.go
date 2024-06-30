@@ -19,9 +19,11 @@ func App(version string) cli.App {
 		Action: func(c *cli.Context) error {
 			_db := db.Open()
 			if _db.DefaultDeckId != -1 {
-				// Reveal option to study, add, and manage cards
+				// Check if deck still exists
+				cmds.DeckMainMenu()
 			} else {
 				cmds.PickDeck()
+				cmds.DeckMainMenu()
 			}
 			return nil
 		},
