@@ -26,7 +26,6 @@ type AnkiConnectRequestWithParams struct {
 
 type DeckNamesAndIdsResponse struct {
 	Result map[string]int `json:"result"`
-	Error  interface{}    `json:"error"`
 }
 
 type CreateDeckParams struct {
@@ -193,4 +192,90 @@ func AddCard(front string, back string, deck string) (int, error) {
 
 	return response.Id, nil
 
+}
+
+type FindCardsResponse struct {
+	Result []int `json:"result"`
+}
+
+func FindCardIds() ([]int, error) {
+	params := map[string]interface{}{
+		"query": "deck:current",
+	}
+
+	jsonBytes, err := getJsonBytes("findCards", params)
+	if err != nil {
+		return nil, err
+	}
+
+	resBytes, err := Request(jsonBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	var response FindCardsResponse
+	err = json.Unmarshal(resBytes, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Result, nil
+}
+
+type Card struct {
+	Answer     string `json:"answer"`
+	Question   string `json:"question"`
+	DeckName   string `json:"deckName"`
+	ModelName  string `json:"modelName"`
+	FieldOrder int    `json:"fieldOrder"`
+	Fields     struct {
+		Front struct {
+			Value string `json:"value"`
+			Order int    `json:"order"`
+		} `json:"Front"`
+		Back struct {
+			Value string `json:"value"`
+			Order int    `json:"order"`
+		} `json:"Back"`
+	} `json:"fields"`
+	CSS      string `json:"css"`
+	CardID   int64  `json:"cardId"`
+	Interval int    `json:"interval"`
+	Note     int64  `json:"note"`
+	Ord      int    `json:"ord"`
+	Type     int    `json:"type"`
+	Queue    int    `json:"queue"`
+	Due      int    `json:"due"`
+	Reps     int    `json:"reps"`
+	Lapses   int    `json:"lapses"`
+	Left     int    `json:"left"`
+	Mod      int    `json:"mod"`
+}
+
+type CardsInfoResponse struct {
+	Result []Card
+}
+
+func GetCardsInfo(cardIds []int) ([]Card, error) {
+	params := map[string]interface{}{
+		"cards": cardIds,
+	}
+
+	jsonBytes, err := getJsonBytes("cardsInfo", params)
+	if err != nil {
+		return nil, err
+	}
+
+	resBytes, err := Request(jsonBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	var response CardsInfoResponse
+	err = json.Unmarshal(resBytes, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Result, nil
 }

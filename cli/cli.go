@@ -15,6 +15,8 @@ func App(version string) cli.App {
 			cmds.Deck(),
 			cmds.Card(),
 			cmds.Purge(),
+			cmds.Add(),
+			cmds.View(),
 		},
 		Action: func(c *cli.Context) error {
 			_db := db.Open()

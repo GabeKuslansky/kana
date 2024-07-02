@@ -21,6 +21,7 @@ const (
 	STUDY             = 2
 	SWITCH            = 3
 	QUIT              = 4
+	BACK_ID           = -1
 )
 
 func Deck() *cli.Command {
@@ -31,34 +32,30 @@ func Deck() *cli.Command {
 		Action: func(c *cli.Context) error {
 			return PickDeck()
 		},
-		// Subcommands: []*cli.Command{
-		// 	{
-		// 		Name:    "add",
-		// 		Aliases: []string{"a", "new"},
-		// 		Usage:   "Add a deck",
-		// 		Flags: []cli.Flag{
-		// 			&cli.StringFlag{
-		// 				Name:    "name",
-		// 				Aliases: []string{"n"},
-		// 				Usage:   "Deck name",
-		// 			},
-		// 		},
-		// 		Action: func(c *cli.Context) error {
-		// 			return deck.AddFromInteractivePrompt()
-		// 		},
-		// 	},
-		// 	{
-		// 		Name:    "list",
-		// 		Aliases: []string{"l"},
-		// 		Usage:   "List decks",
-		// 		Action: func(c *cli.Context) error {
-		// 			return deck.List()
-		// 		},
-		// 	},
-		// },
 	}
 }
 
+func Add() *cli.Command {
+	return &cli.Command{
+		Name:    "add",
+		Aliases: []string{"a"},
+		Usage:   "Add card",
+		Action: func(c *cli.Context) error {
+			return AddCard()
+		},
+	}
+}
+
+func View() *cli.Command {
+	return &cli.Command{
+		Name:    "view",
+		Aliases: []string{"v"},
+		Usage:   "View cards",
+		Action: func(c *cli.Context) error {
+			return ViewCards(db.Open().DefaultDeckName)
+		},
+	}
+}
 func DeckMainMenu() error {
 	title := db.Open().DefaultDeckName
 	if title == "" {
@@ -83,6 +80,7 @@ func DeckMainMenu() error {
 
 	switch action {
 	case VIEW:
+		ViewCards(title)
 	case ADD:
 		AddCard()
 	case STUDY:
@@ -174,7 +172,7 @@ func CreateDeckFromFlags(name string) error {
 	return nil
 }
 
-func AddCard() {
+func AddCard() error {
 	var front string
 	var back string
 	var confirmChoice bool
@@ -194,14 +192,64 @@ func AddCard() {
 		),
 	).Run()
 
-	_, err := anki.AddCard(front, back, db.Open().DefaultDeckName)
-	if err != nil {
-		panic(err)
+	if _, err := anki.AddCard(front, back, db.Open().DefaultDeckName); err != nil {
+		return err
 	}
 
 	if confirmChoice {
-		DeckMainMenu()
-	} else {
-		AddCard()
+		return DeckMainMenu()
 	}
+
+	return AddCard()
+}
+
+func ViewCards(title string) error {
+	ids, err := anki.FindCardIds()
+	if err != nil {
+		return err
+	}
+
+	cards, err := anki.GetCardsInfo(ids)
+	if err != nil {
+		return err
+	}
+
+	maxFrontLength := 0
+	for _, card := range cards {
+		if len(card.Fields.Front.Value) > maxFrontLength {
+			maxFrontLength = len(card.Fields.Front.Value)
+		}
+	}
+
+	opts := make([]huh.Option[anki.Card], len(cards)+1)
+	opts[0] = huh.Option[anki.Card]{Key: (fmt.Sprintf("\x1b[94m%-*s\x1b[0m", maxFrontLength, "(Back)")), Value: anki.Card{CardID: BACK_ID}}
+
+	for i, card := range cards {
+		yellowFront := fmt.Sprintf("\x1b[93m%-*s\x1b[0m", maxFrontLength, card.Fields.Front.Value)
+		opts[i+1] = huh.Option[anki.Card]{Key: fmt.Sprintf("%s\t\t%s", yellowFront, card.Fields.Back.Value), Value: card}
+	}
+
+	var chosenCard anki.Card
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[anki.Card]().
+				Title(fmt.Sprintf("[%s]", title)).
+				Options(opts...).
+				Value(&chosenCard),
+		),
+	)
+
+	form.Run()
+
+	if chosenCard.CardID == BACK_ID {
+		return DeckMainMenu()
+	}
+
+	ManageCard(chosenCard.CardID)
+	return nil
+}
+
+func ManageCard(id int64) {
+
 }
