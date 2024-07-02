@@ -1,45 +1,45 @@
-# What
+# 🗡️ Kana
+A minimal, powerful flashcard workflow for the terminal
+<img src="https://github.com/gabekus/kana/assets/9855482/ab57005d-63b3-4e87-bcdc-0948a423b31d" width="600">
 
-Flashcard system for the terminal utilizing Anki's FSRS spaced repetition algorithm for enhanced memory retention.
+Kana uses Anki's FSRS spaced repetition algorithm, and requires running [Anki](https://apps.ankiweb.net/#download) locally.
 
-# Why
-
-Study without taking your hands off the keyboard
+# Motivation
+Make studying blazingly fast with vim bindings and automation scripts
 
 # Installation
-
-TBD
+Coming soon
 
 # Usage
 
-<b>Adding a deck</b>
+<b>Start interactive session</b>
 
 ```bash
-kana deck add
+kana
+```
+
+<br/>
+<b>Switch decks</b>
+
+```bash
+kana deck
+```
+<br/>
+<b>Add a card</b>
+
+```bash
+kana add
 ```
 
 or
 
 ```bash
-kana deck add "japanese" # deck name
+kana card add -f "front" -b "back"
 ```
 
 <br/>
-<b>Adding a card</b>
+<b>Study cards</b>
 
 ```bash
-kana card add
-```
-
-or
-
-```bash
-kana card add -f "front of the card" -b "back of the card" -d "deck name"
-```
-
-<br/>
-<b>Studying</b>
-
-```bash
-kana study japanese # deck name
+kana study
 ```
